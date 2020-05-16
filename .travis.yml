@@ -1,0 +1,6 @@
+---
+deploy:
+  provider: gae
+  keyfile: gae.json
+  project: ifconfigme-186303
+  on: master
