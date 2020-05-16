@@ -1,24 +1,34 @@
 package main
+
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 	"strings"
-	"flag"
-    "github.com/fukata/golang-stats-api-handler"
+
+	stats_api "github.com/fukata/golang-stats-api-handler"
 )
 
-func main () {
-	var port *int = flag.Int("port", 4978, "listen port")
-	var address *string = flag.String("address", "localhost", "listen address")
-	flag.Parse()
+func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+		log.Printf("Defaulting to port %s", port)
+	}
+
+	log.Printf("Listening on port %s", port)
+
 	http.HandleFunc("/", viewHandler)
-    http.HandleFunc("/api/stats", stats_api.Handler)
-	http.ListenAndServe(fmt.Sprintf("%s:%d", *address, *port), nil)
+	http.HandleFunc("/api/stats", stats_api.Handler)
+	if err := http.ListenAndServe(":"+port, nil); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func viewHandler(w http.ResponseWriter, r *http.Request) {
 	var remoteaddr string
-    if x_forwarded_for := r.Header["X-Forwarded-For"] ; x_forwarded_for != nil {
+	if x_forwarded_for := r.Header["X-Forwarded-For"]; x_forwarded_for != nil {
 		remoteaddr = x_forwarded_for[0]
 	} else {
 		remoteaddr = r.RemoteAddr
@@ -27,4 +37,3 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Fprintf(w, "%s\n", remoteaddr)
 }
-
