@@ -1,4 +1,5 @@
 ---
+language: go
 deploy:
   provider: gae
   keyfile: gae.json
